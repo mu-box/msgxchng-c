@@ -32,10 +32,7 @@ msgxchng_response_t *new_msgxchng_response(char *id, int id_len, char *data, int
 msgxchng_response_t *unpack_msgxchng_response(char *msgpack_response, int len);
 char *pack_msgxchng_response(msgxchng_response_t *response, int *size);
 
+void clean_msgxchng_request(msgxchng_request_t *request);
+void clean_msgxchng_response(msgxchng_response_t *response);
 
-void msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, char *value, int value_len);
-
-void clean_request(msgxchng_request_t *request);
-void clean_response(msgxchng_response_t *response);
-
-#endif
+#endif  // MSGXCHNG_H
