@@ -1,9 +1,10 @@
 Makefile
 Makefile.in
 *.o
-*.a
+*.
+*.lo
+*.la
 /config.*
-/src/hookyd
 /autom4te.cache
 /aclocal.m4
 /compile
@@ -13,3 +14,6 @@ Makefile.in
 .deps
 .dirstamp
 /tmp
+libtool
+ltmain.sh
+configure
