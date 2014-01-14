@@ -12,6 +12,7 @@ Makefile.in
 /install-sh
 /missing
 .deps
+.libs
 .dirstamp
 /tmp
 libtool

@@ -3,6 +3,9 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 
-lib_LTLIBRARIES = libmsgxchng-0.0.1.la
+include_HEADERS = $(top_srcdir)/include/msgxchng.h
 
-libmsgxchng_0_0_1_la_SOURCES = msgxchng.c
+lib_LTLIBRARIES = libmsgxchng.la
+
+libmsgxchng_la_SOURCES = msgxchng.c
+
