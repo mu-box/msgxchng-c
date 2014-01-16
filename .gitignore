@@ -10,6 +10,7 @@ Makefile.in
 /compile
 /depcomp
 /install-sh
+/test-driver
 /missing
 .deps
 .libs
