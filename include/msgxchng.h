@@ -24,14 +24,19 @@ typedef struct msgxchng_response_s {
 	int		status_len;
 } msgxchng_response_t;
 
-msgxchng_request_t *new_msgxchng_request(char *id, int id_len, char *command, int command_len, char *data, int data_len);
-msgxchng_request_t *unpack_msgxchng_request(char *msgpack_request, int len);
-char *pack_msgxchng_request(msgxchng_request_t *request, int *size);
+/* request */
+msgxchng_request_t 	*new_msgxchng_request(char *id, int id_len, 
+	char *command, int command_len, char *data, int data_len);
+msgxchng_request_t 	*unpack_msgxchng_request(char *msgpack_request, int len);
+char 				*pack_msgxchng_request(msgxchng_request_t *request, int *size);
 
-msgxchng_response_t *new_msgxchng_response(char *id, int id_len, char *data, int data_len, char *status, int status_len);
+/* response */
+msgxchng_response_t *new_msgxchng_response(char *id, int id_len, 
+	char *data, int data_len, char *status, int status_len);
 msgxchng_response_t *unpack_msgxchng_response(char *msgpack_response, int len);
-char *pack_msgxchng_response(msgxchng_response_t *response, int *size);
+char 				*pack_msgxchng_response(msgxchng_response_t *response, int *size);
 
+/* cleanup */
 void clean_msgxchng_request(msgxchng_request_t *request);
 void clean_msgxchng_response(msgxchng_response_t *response);
 
