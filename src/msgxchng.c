@@ -8,7 +8,7 @@ static void msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_le
 msgxchng_request_t 
 *new_msgxchng_request(char *id, int id_len, char *command, int command_len, char *data, int data_len)
 {
-	msgxchng_request_t *request = (msgxchng_request_t *)malloc(sizeof *request);
+	msgxchng_request_t *request = (msgxchng_request_t *)malloc(sizeof(msgxchng_request_t));
 
 	request->id_len 	= id_len;
 	request->id			= (char *)malloc(id_len + 1);
@@ -102,7 +102,7 @@ char
 msgxchng_response_t 
 *new_msgxchng_response(char *id, int id_len, char *data, int data_len, char *status, int status_len)
 {
-	msgxchng_response_t *response = (msgxchng_response_t *)malloc(sizeof *response);
+	msgxchng_response_t *response = (msgxchng_response_t *)malloc(sizeof(msgxchng_response_t));
 
 	response->id_len 		= id_len;
 	response->id			= (char *)malloc(id_len + 1);
