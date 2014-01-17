@@ -3,10 +3,12 @@
 
 #include "msgxchng.h"
 
-static void msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, char *value, int value_len);
+static void msgpack_pack_key_value(msgpack_packer *packer, char *key, 
+	int key_len, char *value, int value_len);
 
 msgxchng_request_t 
-*new_msgxchng_request(char *id, int id_len, char *command, int command_len, char *data, int data_len)
+*new_msgxchng_request(char 	*id, int id_len, char *command, 
+	int	command_len, char *data, int data_len)
 {
 	msgxchng_request_t *request = (msgxchng_request_t *)malloc(sizeof(msgxchng_request_t));
 
@@ -47,7 +49,7 @@ msgxchng_request_t
 	if (deserialized.type == MSGPACK_OBJECT_MAP) {
 		msgpack_object_kv* p = deserialized.via.map.ptr;
 		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
-		for (;p < pend; ++p) {
+		for (; p < pend; ++p) {
 			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
 				if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
 					id_len	= p->val.via.raw.size;
@@ -100,7 +102,8 @@ char
 }
 
 msgxchng_response_t 
-*new_msgxchng_response(char *id, int id_len, char *data, int data_len, char *status, int status_len)
+*new_msgxchng_response(char *id, int id_len, char *data, int data_len, 
+	char *status, int status_len)
 {
 	msgxchng_response_t *response = (msgxchng_response_t *)malloc(sizeof(msgxchng_response_t));
 
@@ -194,7 +197,8 @@ char
 }
 
 static void 
-msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, char *value, int value_len)
+msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, 
+	char *value, int value_len)
 {
 	msgpack_pack_raw(packer, key_len);
 	msgpack_pack_raw_body(packer, key, key_len);
