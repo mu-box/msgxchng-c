@@ -6,6 +6,10 @@
 
 #include <msgpack.h>
 
+#define MSGXCHNG_ERROR -1
+#define MSGXCHNG_REQUEST 0
+#define MSGXCHNG_RESPONSE 1
+
 typedef struct msgxchng_request_s {
 	char	*id;
 	int		id_len;
@@ -23,6 +27,9 @@ typedef struct msgxchng_response_s {
 	char	*status;
 	int		status_len;
 } msgxchng_response_t;
+
+/* generic */
+void *unpack_msgxchng(char *msgpack, int len, int *type);
 
 /* request */
 msgxchng_request_t 	*new_msgxchng_request(char *id, int id_len, 
