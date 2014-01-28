@@ -65,8 +65,8 @@ msgxchng_request_t
 				}
 			}
 		}
-
-		request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
+		if (id != NULL, command != NULL, data != NULL)
+			request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
 
 	}
 
@@ -163,8 +163,8 @@ msgxchng_response_t
 				}
 			}
 		}
-
-		response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
+		if (id != NULL && data != NULL && status != NULL)
+			response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
 	}
 
 	msgpack_zone_destroy(mempool);
