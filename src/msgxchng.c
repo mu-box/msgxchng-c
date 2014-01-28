@@ -44,28 +44,31 @@ msgxchng_request_t
 	int data_len = 0;
 
 	msgpack_zone_init(mempool, 4096);
-	msgpack_unpack(msgpack_request, len, NULL, mempool, &deserialized);
+	if (msgpack_unpack(msgpack_request, len, NULL, mempool, 
+		&deserialized) == MSGPACK_UNPACK_SUCCESS) {
 
-	if (deserialized.type == MSGPACK_OBJECT_MAP) {
-		msgpack_object_kv* p = deserialized.via.map.ptr;
-		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
-		for (; p < pend; ++p) {
-			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
-				if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
-					id_len	= p->val.via.raw.size;
-					id		= (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "command", p->key.via.raw.size ) == 0 ) {
-					command_len	= p->val.via.raw.size;
-					command		= (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
-					data_len	= p->val.via.raw.size;
-					data		= (char *)p->val.via.raw.ptr;
+		if (deserialized.type == MSGPACK_OBJECT_MAP) {
+			msgpack_object_kv* p = deserialized.via.map.ptr;
+			msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+			for (; p < pend; ++p) {
+				if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+					if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
+						id_len	= p->val.via.raw.size;
+						id		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "command", p->key.via.raw.size ) == 0 ) {
+						command_len	= p->val.via.raw.size;
+						command		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
+						data_len	= p->val.via.raw.size;
+						data		= (char *)p->val.via.raw.ptr;
+					}
 				}
 			}
 		}
-	}
 
-	request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
+		request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
+
+	}
 
 	msgpack_zone_destroy(mempool);
 	free(mempool);
@@ -139,28 +142,30 @@ msgxchng_response_t
 	int status_len = 0;
 
 	msgpack_zone_init(mempool, 4096);
-	msgpack_unpack(msgpack_response, len, NULL, mempool, &deserialized);
+	if (msgpack_unpack(msgpack_response, len, NULL, mempool, 
+		&deserialized) == MSGPACK_UNPACK_SUCCESS) {
 
-	if (deserialized.type == MSGPACK_OBJECT_MAP) {
-		msgpack_object_kv* p = deserialized.via.map.ptr;
-		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
-		for (;p < pend; ++p) {
-			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
-				if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
-					id_len = p->val.via.raw.size;
-					id = (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
-					data_len = p->val.via.raw.size;
-					data = (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "status", p->key.via.raw.size ) == 0 ) {
-					status_len = p->val.via.raw.size;
-					status = (char *)p->val.via.raw.ptr;
+		if (deserialized.type == MSGPACK_OBJECT_MAP) {
+			msgpack_object_kv* p = deserialized.via.map.ptr;
+			msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+			for (;p < pend; ++p) {
+				if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+					if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
+						id_len = p->val.via.raw.size;
+						id = (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
+						data_len = p->val.via.raw.size;
+						data = (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "status", p->key.via.raw.size ) == 0 ) {
+						status_len = p->val.via.raw.size;
+						status = (char *)p->val.via.raw.ptr;
+					}
 				}
 			}
 		}
-	}
 
-	response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
+		response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
+	}
 
 	msgpack_zone_destroy(mempool);
 	free(mempool);
