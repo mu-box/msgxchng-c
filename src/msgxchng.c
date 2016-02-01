@@ -2,7 +2,8 @@
 // vim: ts=8 sw=8 ft=c noet
 
 #include "msgxchng.h"
-
+#include <string.h>
+#include <stdlib.h>
 
 msgxchng_request_t 
 *new_msgxchng_request(char *id, int id_len, char *command, int command_len, char *data, int data_len)
@@ -65,7 +66,7 @@ msgxchng_request_t
 	request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
 
 	msgpack_zone_destroy(mempool);
-	zfree(mempool);
+	free(mempool);
 	mempool = NULL;
 
 	return request;
@@ -159,7 +160,7 @@ msgxchng_response_t
 	response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
 
 	msgpack_zone_destroy(mempool);
-	zfree(mempool);
+	free(mempool);
 	mempool = NULL;
 
 	return response;
