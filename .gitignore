@@ -10,6 +10,7 @@ Makefile.in
 /compile
 /depcomp
 /install-sh
+/test-driver
 /missing
 .deps
 .libs
@@ -18,3 +19,4 @@ Makefile.in
 libtool
 ltmain.sh
 configure
+test/run-tests

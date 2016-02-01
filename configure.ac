@@ -19,4 +19,4 @@ AC_CHECK_LIB(msgpack, msgpack_object_print,
   [AC_MSG_ERROR([msgpack libraries not found.])]
 )
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile test/Makefile)

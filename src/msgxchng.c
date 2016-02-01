@@ -2,13 +2,76 @@
 // vim: ts=8 sw=8 ft=c noet
 
 #include "msgxchng.h"
-#include <string.h>
-#include <stdlib.h>
+
+static void msgpack_pack_key_value(msgpack_packer *packer, char *key, 
+	int key_len, char *value, int value_len);
+
+void 
+*unpack_msgxchng(char *msgpack, int len, int *type)
+{
+	msgpack_zone *mempool = (msgpack_zone*)malloc(sizeof(msgpack_zone));
+	msgpack_object deserialized;
+	void *ret_val = NULL;
+	char *id = NULL;
+	char *command = NULL;
+	char *data = NULL;
+	char *status = NULL;
+	int id_len = 0;
+	int command_len = 0;
+	int data_len = 0;
+	int status_len = 0;
+
+	msgpack_zone_init(mempool, 4096);
+	if (msgpack_unpack(msgpack, len, NULL, mempool, 
+		&deserialized) == MSGPACK_UNPACK_SUCCESS) {
+
+		if (deserialized.type == MSGPACK_OBJECT_MAP) {
+			msgpack_object_kv* p = deserialized.via.map.ptr;
+			msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+			for (; p < pend; ++p) {
+				if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+					if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
+						id_len	= p->val.via.raw.size;
+						id		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "command", p->key.via.raw.size ) == 0 ) {
+						command_len	= p->val.via.raw.size;
+						command		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
+						data_len	= p->val.via.raw.size;
+						data		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "status", p->key.via.raw.size ) == 0 ) {
+						status_len	= p->val.via.raw.size;
+						status		= (char *)p->val.via.raw.ptr;
+					}
+				}
+			}
+		}
+	}
+
+	if (id != NULL && command != NULL && data != NULL && status == NULL) {
+		*type = MSGXCHNG_REQUEST;
+		ret_val = (void *)new_msgxchng_request(id, id_len, command, command_len, data, data_len);
+	}
+	else if (id != NULL && command == NULL && data != NULL && status != NULL) {
+		*type = MSGXCHNG_RESPONSE;
+		ret_val = (void *)new_msgxchng_response(id, id_len, data, data_len, status, status_len);
+	}
+	else {
+		*type = MSGXCHNG_ERROR;
+	}
+
+	msgpack_zone_destroy(mempool);
+	free(mempool);
+	mempool = NULL;
+
+	return ret_val;
+}
 
 msgxchng_request_t 
-*new_msgxchng_request(char *id, int id_len, char *command, int command_len, char *data, int data_len)
+*new_msgxchng_request(char 	*id, int id_len, char *command, 
+	int	command_len, char *data, int data_len)
 {
-	msgxchng_request_t *request = (msgxchng_request_t *)malloc(sizeof *request);
+	msgxchng_request_t *request = (msgxchng_request_t *)malloc(sizeof(msgxchng_request_t));
 
 	request->id_len 	= id_len;
 	request->id			= (char *)malloc(id_len + 1);
@@ -42,28 +105,31 @@ msgxchng_request_t
 	int data_len = 0;
 
 	msgpack_zone_init(mempool, 4096);
-	msgpack_unpack(msgpack_request, len, NULL, mempool, &deserialized);
+	if (msgpack_unpack(msgpack_request, len, NULL, mempool, 
+		&deserialized) == MSGPACK_UNPACK_SUCCESS) {
 
-	if (deserialized.type == MSGPACK_OBJECT_MAP) {
-		msgpack_object_kv* p = deserialized.via.map.ptr;
-		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
-		for (;p < pend; ++p) {
-			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
-				if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
-					id_len	= p->val.via.raw.size;
-					id		= (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "command", p->key.via.raw.size ) == 0 ) {
-					command_len	= p->val.via.raw.size;
-					command		= (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
-					data_len	= p->val.via.raw.size;
-					data		= (char *)p->val.via.raw.ptr;
+		if (deserialized.type == MSGPACK_OBJECT_MAP) {
+			msgpack_object_kv* p = deserialized.via.map.ptr;
+			msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+			for (; p < pend; ++p) {
+				if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+					if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
+						id_len	= p->val.via.raw.size;
+						id		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "command", p->key.via.raw.size ) == 0 ) {
+						command_len	= p->val.via.raw.size;
+						command		= (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
+						data_len	= p->val.via.raw.size;
+						data		= (char *)p->val.via.raw.ptr;
+					}
 				}
 			}
 		}
-	}
+		if (id != NULL && command != NULL && data != NULL)
+			request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
 
-	request = new_msgxchng_request(id, id_len, command, command_len, data, data_len);
+	}
 
 	msgpack_zone_destroy(mempool);
 	free(mempool);
@@ -100,9 +166,10 @@ char
 }
 
 msgxchng_response_t 
-*new_msgxchng_response(char *id, int id_len, char *data, int data_len, char *status, int status_len)
+*new_msgxchng_response(char *id, int id_len, char *data, int data_len, 
+	char *status, int status_len)
 {
-	msgxchng_response_t *response = (msgxchng_response_t *)malloc(sizeof *response);
+	msgxchng_response_t *response = (msgxchng_response_t *)malloc(sizeof(msgxchng_response_t));
 
 	response->id_len 		= id_len;
 	response->id			= (char *)malloc(id_len + 1);
@@ -136,28 +203,30 @@ msgxchng_response_t
 	int status_len = 0;
 
 	msgpack_zone_init(mempool, 4096);
-	msgpack_unpack(msgpack_response, len, NULL, mempool, &deserialized);
+	if (msgpack_unpack(msgpack_response, len, NULL, mempool, 
+		&deserialized) == MSGPACK_UNPACK_SUCCESS) {
 
-	if (deserialized.type == MSGPACK_OBJECT_MAP) {
-		msgpack_object_kv* p = deserialized.via.map.ptr;
-		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
-		for (;p < pend; ++p) {
-			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
-				if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
-					id_len = p->val.via.raw.size;
-					id = (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
-					data_len = p->val.via.raw.size;
-					data = (char *)p->val.via.raw.ptr;
-				} else if ( strncmp( p->key.via.raw.ptr , "status", p->key.via.raw.size ) == 0 ) {
-					status_len = p->val.via.raw.size;
-					status = (char *)p->val.via.raw.ptr;
+		if (deserialized.type == MSGPACK_OBJECT_MAP) {
+			msgpack_object_kv* p = deserialized.via.map.ptr;
+			msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+			for (;p < pend; ++p) {
+				if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+					if ( strncmp( p->key.via.raw.ptr , "id", p->key.via.raw.size ) == 0 ) {
+						id_len = p->val.via.raw.size;
+						id = (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "data", p->key.via.raw.size ) == 0 ) {
+						data_len = p->val.via.raw.size;
+						data = (char *)p->val.via.raw.ptr;
+					} else if ( strncmp( p->key.via.raw.ptr , "status", p->key.via.raw.size ) == 0 ) {
+						status_len = p->val.via.raw.size;
+						status = (char *)p->val.via.raw.ptr;
+					}
 				}
 			}
 		}
+		if (id != NULL && data != NULL && status != NULL)
+			response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
 	}
-
-	response = new_msgxchng_response(id, id_len, data, data_len, status, status_len);
 
 	msgpack_zone_destroy(mempool);
 	free(mempool);
@@ -193,8 +262,9 @@ char
 	return msgpack_response;
 }
 
-void 
-msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, char *value, int value_len)
+static void 
+msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, 
+	char *value, int value_len)
 {
 	msgpack_pack_raw(packer, key_len);
 	msgpack_pack_raw_body(packer, key, key_len);
@@ -203,7 +273,7 @@ msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, char *val
 }
 
 void 
-clean_request(msgxchng_request_t *request)
+clean_msgxchng_request(msgxchng_request_t *request)
 {
 	free(request->id);
 	request->id = NULL;
@@ -217,7 +287,7 @@ clean_request(msgxchng_request_t *request)
 }
 
 void 
-clean_response(msgxchng_response_t *response)
+clean_msgxchng_response(msgxchng_response_t *response)
 {
 	free(response->id);
 	response->id = NULL;

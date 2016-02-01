@@ -6,6 +6,10 @@
 
 #include <msgpack.h>
 
+#define MSGXCHNG_ERROR -1
+#define MSGXCHNG_REQUEST 0
+#define MSGXCHNG_RESPONSE 1
+
 typedef struct msgxchng_request_s {
 	char	*id;
 	int		id_len;
@@ -24,18 +28,23 @@ typedef struct msgxchng_response_s {
 	int		status_len;
 } msgxchng_response_t;
 
-msgxchng_request_t *new_msgxchng_request(char *id, int id_len, char *command, int command_len, char *data, int data_len);
-msgxchng_request_t *unpack_msgxchng_request(char *msgpack_request, int len);
-char *pack_msgxchng_request(msgxchng_request_t *request, int *size);
+/* generic */
+void *unpack_msgxchng(char *msgpack, int len, int *type);
 
-msgxchng_response_t *new_msgxchng_response(char *id, int id_len, char *data, int data_len, char *status, int status_len);
+/* request */
+msgxchng_request_t 	*new_msgxchng_request(char *id, int id_len, 
+	char *command, int command_len, char *data, int data_len);
+msgxchng_request_t 	*unpack_msgxchng_request(char *msgpack_request, int len);
+char 				*pack_msgxchng_request(msgxchng_request_t *request, int *size);
+
+/* response */
+msgxchng_response_t *new_msgxchng_response(char *id, int id_len, 
+	char *data, int data_len, char *status, int status_len);
 msgxchng_response_t *unpack_msgxchng_response(char *msgpack_response, int len);
-char *pack_msgxchng_response(msgxchng_response_t *response, int *size);
+char 				*pack_msgxchng_response(msgxchng_response_t *response, int *size);
 
+/* cleanup */
+void clean_msgxchng_request(msgxchng_request_t *request);
+void clean_msgxchng_response(msgxchng_response_t *response);
 
-void msgpack_pack_key_value(msgpack_packer *packer, char *key, int key_len, char *value, int value_len);
-
-void clean_request(msgxchng_request_t *request);
-void clean_response(msgxchng_response_t *response);
-
-#endif
+#endif  // MSGXCHNG_H
