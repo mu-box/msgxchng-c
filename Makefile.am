@@ -2,3 +2,5 @@
 # vim: ts=8 sw=8 ft=Makefile noet
 
 SUBDIRS = src test
+
+test: check
