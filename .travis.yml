@@ -1,0 +1,6 @@
+language: c
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y msgpack3 msgpack-dev
+  - autoreconf -fvi 
